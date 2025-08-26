@@ -239,6 +239,7 @@ class Problem extends React.Component {
             this.props.allowLLMFeedback &&
             studentAnswer
         ) {
+            console.log("testandodoo");
             this.fetchLLMFeedback(problem, studentAnswer);
         }
 
@@ -365,17 +366,20 @@ class Problem extends React.Component {
         this.setState({ llmFeedbackStatus: "loading" });
 
         try {
-            const response = await fetch("/api/llm/feedback", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
+            const response = await fetch(
+                "http://localhost:3002/api/llm/feedback",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        question_id: problem.id,
+                        question_stem: problem.body,
+                        student_answer: studentAnswer,
+                    }),
                 },
-                body: JSON.stringify({
-                    question_id: problem.id,
-                    question_stem: problem.body,
-                    student_answer: studentAnswer,
-                }),
-            });
+            );
 
             if (!response.ok) {
                 throw new Error("Network response was not ok");
@@ -570,11 +574,13 @@ class Problem extends React.Component {
                                 />
                             </Element>
                         ))}
-                        {this.props.allowLLMFeedback && <LLMFeedbackPane
-                            status={this.state.llmFeedbackStatus}
-                            feedback={this.state.llmFeedback}
-                            hints={this.state.llmFeedback?.hints}
-                        />}
+                        {this.props.allowLLMFeedback && (
+                            <LLMFeedbackPane
+                                status={this.state.llmFeedbackStatus}
+                                feedback={this.state.llmFeedback}
+                                hints={this.state.llmFeedback?.hints}
+                            />
+                        )}
                     </div>
                     <div width="100%">
                         {this.context.debug ? (
