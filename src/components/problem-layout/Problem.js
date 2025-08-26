@@ -34,6 +34,7 @@ import { stagingProp } from "../../util/addStagingProperty";
 import { cleanArray } from "../../util/cleanObject";
 import Popup from '../Popup/Popup.js';
 import About from '../../pages/Posts/About.js';
+import LLMFeedbackPane from '../LLMFeedbackPane.jsx';
 
 class Problem extends React.Component {
     static defaultProps = {
@@ -81,7 +82,10 @@ class Problem extends React.Component {
             showFeedback: false,
             feedback: "",
             feedbackSubmitted: false,
-            showPopup: false
+            showPopup: false,
+            llmFeedback: null,
+            llmFeedbackStatus: 'initial',
+            llmFeedbackCache: {}
         };
     }
 
@@ -226,9 +230,13 @@ class Problem extends React.Component {
         }
     };
 
-    answerMade = (cardIndex, kcArray, isCorrect) => {
+    answerMade = (cardIndex, kcArray, isCorrect, studentAnswer) => {
         const { stepStates, firstAttempts } = this.state;
         const { lesson, problem } = this.props;
+
+        if (process.env.REACT_APP_LLM_FEEDBACK_ENABLED === 'true' && problem.data?.allowLLMFeedback && studentAnswer) {
+            this.fetchLLMFeedback(problem, studentAnswer);
+        }
 
         console.debug(`answer made and is correct: ${isCorrect}`);
 
@@ -333,6 +341,51 @@ class Problem extends React.Component {
                     stepStates: nextStepStates,
                 });
             }
+        }
+    };
+
+    fetchLLMFeedback = async (problem, studentAnswer) => {
+        const cacheKey = `${problem.id}-${studentAnswer}`;
+        if (this.state.llmFeedbackCache[cacheKey]) {
+            this.setState({
+                llmFeedback: this.state.llmFeedbackCache[cacheKey],
+                llmFeedbackStatus: 'success',
+            });
+            return;
+        }
+
+        this.setState({ llmFeedbackStatus: 'loading' });
+
+        try {
+            const response = await fetch('/api/llm/feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    question_id: problem.id,
+                    question_stem: problem.body,
+                    student_answer: studentAnswer,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+
+            this.setState(prevState => ({
+                llmFeedback: data,
+                llmFeedbackStatus: 'success',
+                llmFeedbackCache: {
+                    ...prevState.llmFeedbackCache,
+                    [cacheKey]: data,
+                },
+            }));
+        } catch (error) {
+            this.setState({ llmFeedbackStatus: 'error' });
+            console.error('Error fetching LLM feedback:', error);
         }
     };
 
@@ -506,6 +559,7 @@ class Problem extends React.Component {
                                 />
                             </Element>
                         ))}
+                        <LLMFeedbackPane status={this.state.llmFeedbackStatus} feedback={this.state.llmFeedback} hints={this.state.llmFeedback?.hints} />
                     </div>
                     <div width="100%">
                         {this.context.debug ? (
