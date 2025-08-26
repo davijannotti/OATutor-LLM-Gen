@@ -17,7 +17,7 @@ import TextField from "@material-ui/core/TextField";
 import { NavLink } from "react-router-dom";
 import HelpOutlineOutlinedIcon from "@material-ui/icons/HelpOutlineOutlined";
 import FeedbackOutlinedIcon from "@material-ui/icons/FeedbackOutlined";
-import withTranslation from "../../util/withTranslation.js"
+import withTranslation from "../../util/withTranslation.js";
 
 import {
     CANVAS_WARNING_STORAGE_KEY,
@@ -32,14 +32,14 @@ import ToastID from "../../util/toastIds";
 import Spacer from "../Spacer";
 import { stagingProp } from "../../util/addStagingProperty";
 import { cleanArray } from "../../util/cleanObject";
-import Popup from '../Popup/Popup.js';
-import About from '../../pages/Posts/About.js';
-import LLMFeedbackPane from '../LLMFeedbackPane.jsx';
+import Popup from "../Popup/Popup.js";
+import About from "../../pages/Posts/About.js";
+import LLMFeedbackPane from "../LLMFeedbackPane.jsx";
 
 class Problem extends React.Component {
     static defaultProps = {
-        autoScroll: true
-      };
+        autoScroll: true,
+    };
     static contextType = ThemeContext;
 
     constructor(props, context) {
@@ -47,7 +47,7 @@ class Problem extends React.Component {
 
         const { setLanguage } = props;
         if (props.lesson.courseName == "Matematik 4") {
-            setLanguage('se')
+            setLanguage("se");
         }
 
         this.bktParams = context.bktParams;
@@ -62,7 +62,8 @@ class Problem extends React.Component {
         const unlockFirstHint = this.props.lesson?.unlockFirstHint;
         const giveStuBottomHint = this.props.lesson?.allowBottomHint;
 
-        this.giveHintOnIncorrect = giveHintOnIncorrect != null && giveHintOnIncorrect;
+        this.giveHintOnIncorrect =
+            giveHintOnIncorrect != null && giveHintOnIncorrect;
         this.giveStuFeedback = giveStuFeedback == null || giveStuFeedback;
         this.keepMCOrder = keepMCOrder != null && keepMCOrder;
         this.keyboardType = keyboardType != null && keyboardType;
@@ -84,8 +85,8 @@ class Problem extends React.Component {
             feedbackSubmitted: false,
             showPopup: false,
             llmFeedback: null,
-            llmFeedbackStatus: 'initial',
-            llmFeedbackCache: {}
+            llmFeedbackStatus: "initial",
+            llmFeedbackCache: {},
         };
     }
 
@@ -124,14 +125,14 @@ class Problem extends React.Component {
                         mastery,
                         components,
                     }),
-                })
+                }),
             );
             if (err || !response) {
                 toast.error(
                     `An unknown error occurred trying to submit this problem. If reloading does not work, please contact us.`,
                     {
                         toastId: ToastID.submit_grade_unknown_error.toString(),
-                    }
+                    },
                 );
                 console.debug(err, response);
             } else {
@@ -154,7 +155,7 @@ class Problem extends React.Component {
                                         {
                                             toastId:
                                                 ToastID.submit_grade_link_lost.toString(),
-                                        }
+                                        },
                                     );
                                     return;
                                 case "unable_to_handle_score":
@@ -164,7 +165,7 @@ class Problem extends React.Component {
                                             toastId:
                                                 ToastID.submit_grade_unable.toString(),
                                             closeOnClick: true,
-                                        }
+                                        },
                                     );
                                     return;
                                 default:
@@ -178,7 +179,7 @@ class Problem extends React.Component {
                                 `Your session has either expired or been invalidated, please reload the page to try again.`,
                                 {
                                     toastId: ToastID.expired_session.toString(),
-                                }
+                                },
                             );
                             return;
                         case 403:
@@ -186,7 +187,7 @@ class Problem extends React.Component {
                                 `You are not authorized to make this action. (Are you a registered student?)`,
                                 {
                                     toastId: ToastID.not_authorized.toString(),
-                                }
+                                },
                             );
                             return;
                         default:
@@ -195,7 +196,7 @@ class Problem extends React.Component {
                                 {
                                     toastId:
                                         ToastID.set_lesson_unknown_error.toString(),
-                                }
+                                },
                             );
                             return;
                     }
@@ -216,13 +217,13 @@ class Problem extends React.Component {
                         autoClose: false,
                         onClick: () => {
                             toast.dismiss(
-                                ToastID.warn_not_from_canvas.toString()
+                                ToastID.warn_not_from_canvas.toString(),
                             );
                         },
                         onClose: () => {
                             setByKey(CANVAS_WARNING_STORAGE_KEY, 1);
                         },
-                    }
+                    },
                 );
             } else {
                 // can ignore
@@ -233,8 +234,11 @@ class Problem extends React.Component {
     answerMade = (cardIndex, kcArray, isCorrect, studentAnswer) => {
         const { stepStates, firstAttempts } = this.state;
         const { lesson, problem } = this.props;
-
-        if (process.env.REACT_APP_LLM_FEEDBACK_ENABLED === 'true' && problem.data?.allowLLMFeedback && studentAnswer) {
+        if (
+            process.env.REACT_APP_LLM_FEEDBACK_ENABLED === "true" &&
+            this.props.allowLLMFeedback &&
+            studentAnswer
+        ) {
             this.fetchLLMFeedback(problem, studentAnswer);
         }
 
@@ -259,11 +263,15 @@ class Problem extends React.Component {
                             kc,
                             cardIndex,
                         },
-                        this.context.problemID
+                        this.context.problemID,
                     );
                     continue;
                 }
-                if (this.doMasteryUpdate && (firstAttempts[cardIndex] === undefined || firstAttempts[cardIndex] === false)) {
+                if (
+                    this.doMasteryUpdate &&
+                    (firstAttempts[cardIndex] === undefined ||
+                        firstAttempts[cardIndex] === false)
+                ) {
                     firstAttempts[cardIndex] = true;
                     update(this.bktParams[kc], isCorrect);
                 }
@@ -298,7 +306,7 @@ class Problem extends React.Component {
 
         if (!giveStuFeedback) {
             const numAttempted = Object.values(nextStepStates).filter(
-                (stepState) => stepState != null
+                (stepState) => stepState != null,
             ).length;
             // console.log("num attempted: ", numAttempted);
             // console.log("num steps: ", numSteps);
@@ -318,12 +326,12 @@ class Problem extends React.Component {
 
         if (isCorrect) {
             const numCorrect = Object.values(nextStepStates).filter(
-                (stepState) => stepState === true
+                (stepState) => stepState === true,
             ).length;
             if (numSteps !== numCorrect) {
                 console.debug(
                     "not last step so not done w/ problem, step states:",
-                    nextStepStates
+                    nextStepStates,
                 );
                 if (this.props.autoScroll) {
                     scroller.scrollTo((cardIndex + 1).toString(), {
@@ -349,18 +357,18 @@ class Problem extends React.Component {
         if (this.state.llmFeedbackCache[cacheKey]) {
             this.setState({
                 llmFeedback: this.state.llmFeedbackCache[cacheKey],
-                llmFeedbackStatus: 'success',
+                llmFeedbackStatus: "success",
             });
             return;
         }
 
-        this.setState({ llmFeedbackStatus: 'loading' });
+        this.setState({ llmFeedbackStatus: "loading" });
 
         try {
-            const response = await fetch('/api/llm/feedback', {
-                method: 'POST',
+            const response = await fetch("/api/llm/feedback", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     question_id: problem.id,
@@ -370,22 +378,22 @@ class Problem extends React.Component {
             });
 
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error("Network response was not ok");
             }
 
             const data = await response.json();
 
-            this.setState(prevState => ({
+            this.setState((prevState) => ({
                 llmFeedback: data,
-                llmFeedbackStatus: 'success',
+                llmFeedbackStatus: "success",
                 llmFeedbackCache: {
                     ...prevState.llmFeedbackCache,
                     [cacheKey]: data,
                 },
             }));
         } catch (error) {
-            this.setState({ llmFeedbackStatus: 'error' });
-            console.error('Error fetching LLM feedback:', error);
+            this.setState({ llmFeedbackStatus: "error" });
+            console.error("Error fetching LLM feedback:", error);
         }
     };
 
@@ -414,7 +422,7 @@ class Problem extends React.Component {
             chooseVariables(problem.variabilization, this.props.seed),
             problem.courseName,
             problem.steps,
-            problem.lesson
+            problem.lesson,
         );
         this.setState({ feedback: "", feedbackSubmitted: true });
     };
@@ -425,11 +433,11 @@ class Problem extends React.Component {
             showFeedback: !prevState.showFeedback,
         }));
     };
-    
+
     togglePopup = () => {
         console.log("Toggling popup visibility");
         this.setState((prevState) => ({
-          showPopup: !prevState.showPopup,
+            showPopup: !prevState.showPopup,
         }));
     };
 
@@ -446,17 +454,20 @@ class Problem extends React.Component {
         var oerArray, licenseArray;
         var oerLink, oerName;
         var licenseLink, licenseName;
-	try {
-        if (problem.oer != null && problem.oer.includes(" <")) {
-            oerArray = problem.oer.split(" <");
-        } else if (lesson.courseOER != null && lesson.courseOER.includes(" ")) {
-            oerArray = lesson.courseOER.split(" <");
-        } else {
+        try {
+            if (problem.oer != null && problem.oer.includes(" <")) {
+                oerArray = problem.oer.split(" <");
+            } else if (
+                lesson.courseOER != null &&
+                lesson.courseOER.includes(" ")
+            ) {
+                oerArray = lesson.courseOER.split(" <");
+            } else {
+                oerArray = ["", ""];
+            }
+        } catch (error) {
             oerArray = ["", ""];
         }
-	} catch(error) {
-		oerArray = ["", ""];
-	}
 
         oerLink = oerArray[0];
         oerName = oerArray[1].substring(0, oerArray[1].length - 1);
@@ -472,7 +483,7 @@ class Problem extends React.Component {
             } else {
                 licenseArray = ["", ""];
             }
-        } catch(error) {
+        } catch (error) {
             licenseArray = ["", ""];
         }
         licenseLink = licenseArray[0];
@@ -506,9 +517,9 @@ class Problem extends React.Component {
                                         problem.id,
                                         chooseVariables(
                                             problem.variabilization,
-                                            seed
+                                            seed,
                                         ),
-                                        this.context
+                                        this.context,
                                     )}
                                     <hr />
                                 </h1>
@@ -518,9 +529,9 @@ class Problem extends React.Component {
                                         problem.id,
                                         chooseVariables(
                                             problem.variabilization,
-                                            seed
+                                            seed,
                                         ),
-                                        this.context
+                                        this.context,
                                     )}
                                 </div>
                             </CardContent>
@@ -559,7 +570,11 @@ class Problem extends React.Component {
                                 />
                             </Element>
                         ))}
-                        <LLMFeedbackPane status={this.state.llmFeedbackStatus} feedback={this.state.llmFeedback} hints={this.state.llmFeedback?.hints} />
+                        {this.props.allowLLMFeedback && <LLMFeedbackPane
+                            status={this.state.llmFeedbackStatus}
+                            feedback={this.state.llmFeedback}
+                            hints={this.state.llmFeedback?.hints}
+                        />}
                     </div>
                     <div width="100%">
                         {this.context.debug ? (
@@ -581,7 +596,9 @@ class Problem extends React.Component {
                                                 (this.context.needRefresh = true)
                                             }
                                         >
-                                            {translate('problem.PreviousProblem')}
+                                            {translate(
+                                                "problem.PreviousProblem",
+                                            )}
                                         </Button>
                                     </NavLink>
                                 </Grid>
@@ -602,14 +619,13 @@ class Problem extends React.Component {
                                                 (this.context.needRefresh = true)
                                             }
                                         >
-                                           {translate('problem.NextProblem')}
+                                            {translate("problem.NextProblem")}
                                         </Button>
                                     </NavLink>
                                 </Grid>
                                 <Grid item xs={2} key={4} />
                             </Grid>
                         ) : (
-                            
                             <Grid container spacing={0}>
                                 <Grid item xs={3} sm={3} md={5} key={1} />
                                 <Grid item xs={6} sm={6} md={2} key={2}>
@@ -625,7 +641,7 @@ class Problem extends React.Component {
                                             )
                                         }
                                     >
-                                        {translate('problem.NextProblem')}
+                                        {translate("problem.NextProblem")}
                                     </Button>
                                 </Grid>
                                 <Grid item xs={3} sm={3} md={5} key={3} />
@@ -644,7 +660,8 @@ class Problem extends React.Component {
                         <div style={{ marginLeft: 20, fontSize: 12 }}>
                             {licenseName !== "" && licenseLink !== "" ? (
                                 <div>
-                                    "{problem.title}" {translate('problem.Derivative')}&nbsp;
+                                    "{problem.title}"{" "}
+                                    {translate("problem.Derivative")}&nbsp;
                                     <a
                                         href={oerLink}
                                         target="_blank"
@@ -652,7 +669,7 @@ class Problem extends React.Component {
                                     >
                                         "{oerName}"
                                     </a>
-                                    {translate('problem.Used')}&nbsp;
+                                    {translate("problem.Used")}&nbsp;
                                     <a
                                         href={licenseLink}
                                         target="_blank"
@@ -663,21 +680,23 @@ class Problem extends React.Component {
                                 </div>
                             ) : (
                                 <div>
-                                {oerName !== "" && oerLink !== "" ? (
-                                <div>
-                                    "{problem.title}" {translate('problem.Derivative')}&nbsp;
-                                    <a
-                                        href={oerLink}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                    >
-                                        "{oerName}"
-                                    </a>
+                                    {oerName !== "" && oerLink !== "" ? (
+                                        <div>
+                                            "{problem.title}"{" "}
+                                            {translate("problem.Derivative")}
+                                            &nbsp;
+                                            <a
+                                                href={oerLink}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                            >
+                                                "{oerName}"
+                                            </a>
+                                        </div>
+                                    ) : (
+                                        <></>
+                                    )}
                                 </div>
-                            ) : (
-                                <></>
-                            )}
-                            </div>
                             )}
                         </div>
                         <div
@@ -721,14 +740,14 @@ class Problem extends React.Component {
                     {this.state.showFeedback ? (
                         <div className="Feedback">
                             <center>
-                                <h1>{translate('problem.Feedback')}</h1>
+                                <h1>{translate("problem.Feedback")}</h1>
                             </center>
                             <div className={classes.textBox}>
                                 <div className={classes.textBoxHeader}>
                                     <center>
                                         {this.state.feedbackSubmitted
-                                            ? translate('problem.Thanks')
-                                            : translate('problem.Description')}
+                                            ? translate("problem.Thanks")
+                                            : translate("problem.Description")}
                                     </center>
                                 </div>
                                 {this.state.feedbackSubmitted ? (
@@ -751,7 +770,9 @@ class Problem extends React.Component {
                                         >
                                             <TextField
                                                 id="outlined-multiline-flexible"
-                                                label={translate('problem.Response')}
+                                                label={translate(
+                                                    "problem.Response",
+                                                )}
                                                 multiline
                                                 fullWidth
                                                 minRows="6"
@@ -800,7 +821,7 @@ class Problem extends React.Component {
                                                     this.state.feedback === ""
                                                 }
                                             >
-                                                {translate('problem.Submit')}
+                                                {translate("problem.Submit")}
                                             </Button>
                                         </Grid>
                                         <Grid

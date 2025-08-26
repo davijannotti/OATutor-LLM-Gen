@@ -13,6 +13,7 @@ import {
     SITE_NAME,
     ThemeContext,
     MASTERY_THRESHOLD,
+    allowLLMFeedback,
 } from "../config/config.js";
 import to from "await-to-js";
 import { toast } from "react-toastify";
@@ -505,6 +506,7 @@ class Platform extends React.Component {
                             seed={this.state.seed}
                             lessonID={this.props.lessonID}
                             displayMastery={this.displayMastery}
+                            allowLLMFeedback={allowLLMFeedback}
                         />
                     </ErrorBoundary>
                 ) : (
