@@ -240,7 +240,7 @@ class Problem extends React.Component {
             studentAnswer
         ) {
             console.log("testandodoo");
-            this.fetchLLMFeedback(problem, studentAnswer);
+            this.fetchLLMFeedback(problem, studentAnswer, kcArray);
         }
 
         console.debug(`answer made and is correct: ${isCorrect}`);
@@ -353,7 +353,7 @@ class Problem extends React.Component {
         }
     };
 
-    fetchLLMFeedback = async (problem, studentAnswer) => {
+    fetchLLMFeedback = async (problem, studentAnswer, kcArray) => {
         const cacheKey = `${problem.id}-${studentAnswer}`;
         if (this.state.llmFeedbackCache[cacheKey]) {
             this.setState({
@@ -377,6 +377,7 @@ class Problem extends React.Component {
                         question_id: problem.id,
                         question_stem: problem.body,
                         student_answer: studentAnswer,
+                        knowledge_components: kcArray,
                     }),
                 },
             );

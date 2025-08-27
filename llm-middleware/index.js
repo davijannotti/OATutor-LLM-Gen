@@ -10,14 +10,17 @@ app.use(cors());
 const PORT = process.env.PORT || 3001;
 
 app.post('/api/llm/feedback', async (req, res) => {
-    const { question_stem, student_answer } = req.body;
+    console.log('Request body:', req.body);
+    const { question_stem, student_answer, knowledge_components } = req.body;
 
     if (!question_stem || !student_answer) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
     const prompt = `
-        Você é um tutor. Pergunta: ${question_stem}.
+        Você é um tutor.
+        Os componentes de conhecimento para esta pergunta são: ${knowledge_components.join(', ')}.
+        Pergunta: ${question_stem}.
         Resposta do aluno: ${student_answer}.
         Explique se está correto ou incorreto.
         Se incorreto, dê dicas e oriente o estudo, mas NÃO revele a resposta certa.
