@@ -234,14 +234,6 @@ class Problem extends React.Component {
     answerMade = (cardIndex, kcArray, isCorrect, studentAnswer) => {
         const { stepStates, firstAttempts } = this.state;
         const { lesson, problem } = this.props;
-        if (
-            process.env.REACT_APP_LLM_FEEDBACK_ENABLED === "true" &&
-            this.props.allowLLMFeedback &&
-            studentAnswer
-        ) {
-            console.log("testandodoo");
-            this.fetchLLMFeedback(problem, studentAnswer, kcArray);
-        }
 
         console.debug(`answer made and is correct: ${isCorrect}`);
 

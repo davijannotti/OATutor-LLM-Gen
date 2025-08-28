@@ -18,13 +18,29 @@ app.post('/api/llm/feedback', async (req, res) => {
     }
 
     const prompt = `
-        Você é um tutor.
+        Você é um tutor de matemática.
+        A pergunta é: ${question_stem}.
+        A resposta do aluno é: ${student_answer}.
         Os componentes de conhecimento para esta pergunta são: ${knowledge_components.join(', ')}.
-        Pergunta: ${question_stem}.
-        Resposta do aluno: ${student_answer}.
-        Explique se está correto ou incorreto.
-        Se incorreto, dê dicas e oriente o estudo, mas NÃO revele a resposta certa.
-        Responda em JSON válido no schema definido.
+
+        Avalie a resposta do aluno e forneça um feedback em formato JSON.
+        O JSON deve ter a seguinte estrutura:
+        {
+          "evaluation": "correto" | "incorreto",
+          "feedback": {
+            "message": "Uma mensagem para o aluno explicando o erro.",
+            "hint": "Uma dica para ajudar o aluno a chegar na resposta correta.",
+            "study_tips": [
+              {
+                "topic": "O tópico de estudo relacionado ao erro.",
+                "tip": "Uma dica de estudo para o tópico."
+              }
+            ]
+          }
+        }
+
+        Se a resposta estiver correta, o campo "feedback" pode ser nulo.
+        Não revele a resposta correta.
     `;
 
     try {
