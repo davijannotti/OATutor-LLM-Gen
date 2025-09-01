@@ -672,7 +672,9 @@ class ProblemCard extends React.Component {
                     },
                     body: JSON.stringify({
                         question_id: problemID,
-                        question_stem: this.step.stepBody.trim() || this.step.stepTitle.trim(),
+                        question_stem:
+                            this.step.stepBody.trim() ||
+                            this.step.stepTitle.trim(),
                         student_answer: inputVal,
                         knowledge_components: knowledgeComponents,
                     }),
@@ -684,10 +686,9 @@ class ProblemCard extends React.Component {
             }
 
             const data = await response.json();
-            const feedbackData = JSON.parse(data.response);
 
             this.setState({
-                aiFeedback: feedbackData,
+                aiFeedback: data,
                 llmFeedbackStatus: "success",
                 isAIFeedbackPopupOpen: true,
             });
@@ -711,7 +712,10 @@ class ProblemCard extends React.Component {
                     isOpen={this.state.isAIFeedbackPopupOpen}
                     onClose={this.closeAIFeedbackPopup}
                 >
-                    <LLMFeedbackPane status={this.state.llmFeedbackStatus} feedback={this.state.aiFeedback} />
+                    <LLMFeedbackPane
+                        status={this.state.llmFeedbackStatus}
+                        feedback={this.state.aiFeedback}
+                    />
                 </Popup>
                 <CardContent>
                     <h2 className={classes.stepHeader}>
