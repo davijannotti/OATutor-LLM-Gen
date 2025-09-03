@@ -101,6 +101,10 @@ function validateAndCorrectFormat(input) {
 }
 
 function convertSwedishToUS(numberString) {
+    if (typeof numberString !== "string") {
+        return numberString;
+    }
+
     let noSpaces = numberString.replace(/\s/g, "");
     let formattedNumber = noSpaces.replace(/(?<=\d),(?=\d)/g, ".");
     return formattedNumber;
@@ -125,7 +129,9 @@ function checkAnswer({
     questionText = "",
 }) {
     if (localStorage.getItem("locale") == "se") {
-        attempt = convertSwedishToUS(attempt);
+        if (typeof attempt === "string") {
+            attempt = convertSwedishToUS(attempt);
+        }
     }
 
     let parsed = Array.isArray(attempt) ? attempt : attempt.replace(/\s+/g, "");
