@@ -205,6 +205,7 @@ class ProblemInput extends React.Component {
                                 defaultValue: correctAnswer
                             } : {}}
                             variabilization={variabilization}
+                            allowMultiple={this.props.step.answerType === "MultipleSelect"}
                         />
                     ) :
                     (problemType === "MultipleChoice") && (
@@ -216,6 +217,7 @@ class ProblemInput extends React.Component {
                                 defaultValue: correctAnswer
                             } : {}}
                             variabilization={variabilization}
+                            allowMultiple={this.props.step.answerType === "MultipleSelect"}
                         />
                     )}
                     {problemType === "GridInput" && (

@@ -8,12 +8,9 @@ The LLM feedback feature provides students with immediate, AI-generated feedback
 
 ## 2. Feature Activation
 
-The feature is activated through a combination of a problem-level meta-tag and a global environment variable.
+The feature is activated through a global environment variable.
 
--   **Meta-tag**: A problem must have the `allowLLMFeedback` meta-tag set to `true` in the course content.
--   **Environment Variable**: The `REACT_APP_LLM_FEEDBACK_ENABLED` environment variable must be set to `true` in the frontend application.
-
-This dual-control mechanism allows for granular control over which problems use the feature and enables it to be toggled on or off globally.
+-   **Global Environment Variable**: config.js must have the `allowLLMFeedback` meta-tag set to `true`.
 
 ## 3. Frontend Implementation
 
@@ -49,7 +46,7 @@ The backend is an Express.js proxy located in the `llm-middleware/` directory. I
 
 ### API Endpoint
 
--   **`POST /api/llm/feedback`**: This endpoint receives the `question_stem` and `student_answer` from the frontend.
+-   **`POST /api/llm/feedback`**: This endpoint receives the `question_id`, `question_stem`, `student_answer` and `knowledge_components` from the frontend.
 
 ### Logic
 
