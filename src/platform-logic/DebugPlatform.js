@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import ProblemWrapper from "@components/problem-layout/ProblemWrapper.js";
 
-import { ThemeContext } from '../config/config.js';
+import { ThemeContext, allowLLMFeedback } from '../config/config.js';
 import Box from "@material-ui/core/Box";
 import BrandLogoNav from "@components/BrandLogoNav";
 import { CONTENT_SOURCE } from "@common/global-config";
@@ -222,7 +222,8 @@ class DebugPlatform extends React.Component {
                 {this.state.currProblem
                     ? <ProblemWrapper problem={this.state.currProblem} problemComplete={this.problemComplete}
                                lesson={this.lesson}
-                               seed={this.state.seed}/>
+                               seed={this.state.seed}
+                               allowLLMFeedback={allowLLMFeedback}/>
                     : <Box width={'100%'} textAlign={'center'} pt={4} pb={4}>
                         <Typography variant={'h3'}>Problem id <code>{this.props.problemID}</code> is not
                             valid!</Typography>

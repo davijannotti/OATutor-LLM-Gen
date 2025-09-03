@@ -56,6 +56,12 @@ const DO_LOG_MOUSE_DATA = false;
 const AB_TEST_MODE = false;
 
 /**
+ * If true, shows the LLM feedback pane in the problem-solving interface.
+ * @type {boolean}
+ */
+const allowLLMFeedback = true;
+
+/**
  * If reach bottom of provided hints, give correct answer to question
  * @type {boolean}
  */
@@ -156,4 +162,5 @@ export {
     DO_FOCUS_TRACKING,
     findLessonById,
     SHOW_NOT_CANVAS_WARNING,
+    allowLLMFeedback,
 };

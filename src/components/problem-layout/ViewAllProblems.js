@@ -21,7 +21,7 @@ import BrandLogoNav from '@components/BrandLogoNav';
 import Popup from '@components/Popup/Popup';
 import About from '../../pages/Posts/About';
 import ProblemWrapper from '@components/problem-layout/ProblemWrapper';
-import { findLessonById, ThemeContext, SHOW_COPYRIGHT, SITE_NAME } from '../../config/config.js';
+import { findLessonById, ThemeContext, SHOW_COPYRIGHT, SITE_NAME, allowLLMFeedback } from '../../config/config.js';
 import { CONTENT_SOURCE } from '@common/global-config';
 import withTranslation from '../../util/withTranslation.js';
 
@@ -162,6 +162,7 @@ const ViewAllProblems = ({ translate }) => {
                 clearStateOnPropChange={lessonID}
                 displayMastery={displayMastery}
                 problemComplete={problemComplete}
+                allowLLMFeedback={allowLLMFeedback}
               />
             </Box>
           </Box>
