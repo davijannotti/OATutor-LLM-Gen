@@ -229,7 +229,7 @@ with tab_problems:
 
     for i in range(num_hints):
         st.markdown(f"--- \n#### Hint {i+1}")
-
+        hint_title = st.text_input(f"Hint {i+1} Title", key=f"hint_title_{i}")
         hint_text = st.text_area(f"Hint {i+1} Text", key=f"hint_text_{i}")
 
         is_scaffold = st.checkbox(f"Is this a scaffold hint?", key=f"is_scaffold_{i}")
@@ -261,7 +261,7 @@ with tab_problems:
             hint_obj = {
                 "id": hint_id,
                 "dependencies": dependencies,
-                "title": f"Hint {i+1}",
+                "title": hint_title,
                 "text": hint_text,
                 "variabilization": {},
                 "oer": problem_oer,
@@ -298,7 +298,7 @@ with tab_problems:
         "courseName": selected_course_name
     }
     step_obj = {
-        "id": step_id,
+        "id": problem_id,
         "problemType": problem_type,
         "stepTitle": step_title,
         "stepBody": "",
