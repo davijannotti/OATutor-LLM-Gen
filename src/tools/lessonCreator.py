@@ -83,69 +83,78 @@ with tab_lessons:
         if "learningObjectives" not in st.session_state:
             st.session_state.learningObjectives = {}
 
-        # ------------ UI to ADD Learning Objectives (OUTSIDE the form) ------------
+        # ------------ UI to ADD Learning Objectives ------------
         st.markdown("### 1. Add Learning Objectives")
         col1, col2, col3 = st.columns([4, 2, 1])
         with col1:
-            new_lo_input = st.text_input("Search/Add Learning Objective", key="new_lo_text")
-            suggestions = [s for s in skills_list if new_lo_input.lower() in s.lower()] if new_lo_input else skills_list
-            selected_lo = st.selectbox("Select from existing or type new", options=suggestions, key="selected_lo_suggestion")
-
+            selected_lo = st.selectbox("Select from existing", options=skills_list, key="selected_lo_suggestion")
         with col2:
             new_weight = st.number_input("Weight", min_value=0.0, max_value=1.0, value=0.85, step=0.05, key="new_lo_weight")
         with col3:
-            st.write("&#8203;") # Espaço em branco para alinhar verticalmente
+            st.write("&#8203;") # Vertical alignment spacer
             add_lo_button = st.button("➕ Add LO")
 
         if add_lo_button and selected_lo:
             st.session_state.learningObjectives[selected_lo] = new_weight
 
+        # Display the list of currently added LOs
         if st.session_state.learningObjectives:
             st.write("Current Learning Objectives for the new lesson:")
             for k, v in st.session_state.learningObjectives.items():
                 st.write(f"- **{k}** (Weight: {v})")
             if st.button("Clear All LOs"):
-                 st.session_state.learningObjectives = {}
-                 st.rerun()
+                st.session_state.learningObjectives = {}
         st.divider()
 
-        # ---------- Main Form ----------
-        st.markdown("### 2. Enter Lesson Details and Save")
+        # ------------ Lesson Details & Live Preview ------------
+        st.markdown("### 2. Enter Lesson Details")
+
+        selected_course = st.selectbox("Select Course", options=course_names)
+        lesson_id = st.text_input("Lesson ID (slug)", value="lesson1")
+        lesson_name = st.text_input("Lesson Name", value="Lesson 1.1")
+        lesson_topics = st.text_input("Lesson Topics", value="Introduction")
+
+        # Add the checkbox for allowRecycle
+        allow_recycle = st.checkbox("Allow problem recycling in this lesson", value=True)
+
+        # Build the lesson object with the current values from the widgets
+        lesson_obj = {
+            "id": lesson_id,
+            "name": lesson_name,
+            "topics": lesson_topics,
+            "allowRecycle": allow_recycle,
+            "learningObjectives": st.session_state.learningObjectives
+        }
+
+        st.subheader("Live Preview of Lesson JSON")
+        st.json(lesson_obj)
+        st.divider()
+
+        # ---------- Main Form (for submission only) ----------
+        st.markdown("### 3. Save Lesson")
         with st.form("new_lesson_form"):
-            selected_course = st.selectbox("Select Course", options=course_names)
-
-            lesson_id = st.text_input("Lesson ID (slug)", value="lesson1")
-            lesson_name = st.text_input("Lesson Name", value="Lesson 1.1")
-            lesson_topics = st.text_input("Lesson Topics", value="Introduction")
-
-            # ---------- Preview JSON ----------
-            lesson_obj = {
-                "id": lesson_id,
-                "name": lesson_name,
-                "topics": lesson_topics,
-                "allowRecycle": True,
-                "learningObjectives": st.session_state.learningObjectives
-            }
-            st.subheader("Preview Lesson JSON")
-            st.json(lesson_obj)
-
-            # ---------- Submit button form ----------
+            # The form is now just a container for the submit button
             submitted = st.form_submit_button("💾 Create and Save Lesson")
             if submitted:
+                # Validation
                 if not st.session_state.learningObjectives:
                     st.error("Please add at least one Learning Objective.")
                 elif not lesson_id or not lesson_name:
                     st.error("Lesson ID and Lesson Name are required.")
                 else:
+                    # Find the correct course and append the lesson
                     for course in course_plans:
                         if course["courseName"] == selected_course:
                             course["lessons"].append(lesson_obj)
+
+                    # Save the updated course plans
                     save_json(COURSE_PLANS_FILE, course_plans)
                     st.success(f"✅ Lesson '{lesson_name}' added to course '{selected_course}'!")
-                    st.session_state.learningObjectives = {}
-                    # st.rerun() # Rerun to clean UI
 
-# ----------------- PROBLEMS ----------------- #
+                    # Clear the learning objectives for the next lesson
+                    st.session_state.learningObjectives = {}
+
+# ----------------- PROBLEMS (ATUALIZADO) ----------------- #
 with tab_problems:
     st.header("📝 Problems Management")
 
@@ -155,19 +164,36 @@ with tab_problems:
     bkt_params = load_json(BKT_PARAMS_FILE, default={})
 
     course_names = [c["courseName"] for c in course_plans]
-    lessons = [l for c in course_plans for l in c.get("lessons", [])]
-    lesson_map = {l["id"]: l for l in lessons}
-    lesson_ids = [l["id"] for l in lessons]
     learning_objectives = list(bkt_params.keys())
+
+    st.subheader("Problem Association")
+    selected_course_name = st.selectbox("Course", options=course_names if course_names else ["<none>"])
+
+    selected_course_obj = next((c for c in course_plans if c.get("courseName") == selected_course_name), None)
+
+    lessons_in_course = []
+    default_oer = ""
+    default_license = ""
+
+    if selected_course_obj:
+        lessons_in_course = [l["id"] for l in selected_course_obj.get("lessons", [])]
+        default_oer = selected_course_obj.get("courseOER", "")
+        default_license = selected_course_obj.get("courseLicense", "")
+
+    selected_lesson = st.selectbox(
+        "Lesson ID",
+        options=lessons_in_course if lessons_in_course else ["<none>"]
+    )
+    st.divider()
 
     st.subheader("Problem Info")
     problem_title = st.text_input("Problem Title")
     problem_body = st.text_area("Problem Body (supports LaTeX with $$...$$)")
+
+    problem_oer = st.text_input("Problem OER (URL)", value=default_oer)
+    problem_license = st.text_input("Problem License", value=default_license)
+
     problem_type = st.selectbox("Problem Type", ["TextBox", "MultipleChoice"])
-
-    selected_course = st.selectbox("Course", options=course_names if course_names else ["<none>"])
-    selected_lesson = st.selectbox("Lesson ID", options=[l["id"] for l in lessons if l["id"]], index=0 if lesson_ids else 0)
-
     step_title = st.text_input("Step Title")
 
     # Choices + AnswerType dynamically
@@ -182,11 +208,11 @@ with tab_problems:
         if choices:
             st.subheader("Correct Answers")
             step_answer = st.multiselect("Select correct answers", options=choices)
-            computed_answer_type = "MultipleSelect" if len(step_answer) > 1 else "string"
+            computed_answer_type = "MultipleSelect" if len(step_answer) > 1 else "string or MultipleChoice"
             st.caption(f"Suggested answerType: {computed_answer_type}")
             answer_type = st.radio(
                 "Answer Type (override)",
-                options=["string", "MultipleSelect"],
+                options=["string", "MultipleChoice", "MultipleSelect"],
                 index=0 if computed_answer_type == "string" else 1
             )
     elif problem_type == "TextBox":
@@ -195,24 +221,62 @@ with tab_problems:
         step_answer = [answer_input] if answer_input else []
         answer_type = st.selectbox("Answer Type", ["algebraic", "string", "numeric"])
 
-    # Hints
+    # --- HINTS ---
     st.subheader("Hints")
     num_hints = st.number_input("Number of hints", min_value=0, max_value=10, value=2)
     hints = []
+    hint_ids = []
+
     for i in range(num_hints):
-        hint_text = st.text_area(f"Hint {i+1} Text")
+        st.markdown(f"--- \n#### Hint {i+1}")
+
+        hint_text = st.text_area(f"Hint {i+1} Text", key=f"hint_text_{i}")
+
+        is_scaffold = st.checkbox(f"Is this a scaffold hint?", key=f"is_scaffold_{i}")
+
+        hint_answer_val = None
+        answer_type_hint = "arithmetic"
+
+        if is_scaffold:
+            col1, col2 = st.columns(2)
+            with col1:
+                answer_input = st.text_input("Hint answer", key=f"hint_answer_{i}")
+                if answer_input:
+                    hint_answer_val = [answer_input]
+            with col2:
+                answer_type_hint = st.selectbox(
+                    "Type of answer",
+                    ["arithmetic", "string", "algebraic"],
+                    key=f"hint_answer_type_{i}"
+                )
+
         if hint_text:
-            hint_type = "hint" if i < (num_hints - 1) else "solution"
-            hints.append({
-                "id": f"{slugify(problem_title)}-h{i+1}",
+            hint_id = f"{slugify(problem_title)}-h{i+1}"
+            hint_ids.append(hint_id)
+
+            dependencies = []
+            if i > 0 and hint_ids:
+                dependencies.append(hint_ids[i-1])
+
+            hint_obj = {
+                "id": hint_id,
+                "dependencies": dependencies,
                 "title": f"Hint {i+1}",
                 "text": hint_text,
-                "type": hint_type,
-                "dependencies": [i-1] if i > 0 else [],
                 "variabilization": {},
-                "oer": "",
-                "license": ""
-            })
+                "oer": problem_oer,
+                "license": problem_license
+            }
+
+            if is_scaffold and hint_answer_val:
+                hint_obj["type"] = "scaffold"
+                hint_obj["problemType"] = "TextBox"
+                hint_obj["answerType"] = answer_type_hint
+                hint_obj["hintAnswer"] = hint_answer_val
+            else:
+                hint_obj["type"] = "hint" if i < (num_hints - 1) else "solution"
+
+            hints.append(hint_obj)
 
     # Skills
     st.subheader("Learning Objectives")
@@ -222,27 +286,28 @@ with tab_problems:
     st.subheader("Preview Problem JSON")
     problem_id = slugify(problem_title) if problem_title else "<problem_id>"
     step_id = f"{problem_id}a"
+
     problem_obj = {
         "id": problem_id,
         "title": problem_title,
         "body": problem_body,
         "variabilization": {},
-        "oer": "",
-        "license": "",
+        "oer": problem_oer,
+        "license": problem_license,
         "lesson": selected_lesson,
-        "courseName": selected_course
+        "courseName": selected_course_name
     }
     step_obj = {
-        "id": problem_id,
+        "id": step_id,
         "problemType": problem_type,
         "stepTitle": step_title,
-        "stepBody": problem_body,
+        "stepBody": "",
         "stepAnswer": step_answer,
         "answerType": answer_type,
-        "choices": choices if problem_type == "MultipleChoice" else None,
+        "choices": choices if problem_type == "MultipleChoice" else [],
         "variabilization": {},
-        "oer": "",
-        "license": "",
+        "oer": problem_oer,
+        "license": problem_license,
         "lesson": selected_lesson
     }
     st.json({"problem": problem_obj, "step": step_obj, "hints": hints})
