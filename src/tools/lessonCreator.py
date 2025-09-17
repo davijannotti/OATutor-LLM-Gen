@@ -85,14 +85,12 @@ with tab_lessons:
 
         # ------------ UI to ADD Learning Objectives ------------
         st.markdown("### 1. Add Learning Objectives")
-        col1, col2, col3 = st.columns([4, 2, 1.5])
+        col1, col2, col3 = st.columns([4, 2, 1.1], vertical_alignment="bottom")
         with col1:
             selected_lo = st.selectbox("Select from existing", options=skills_list, key="selected_lo_suggestion")
         with col2:
             new_weight = st.number_input("Weight", min_value=0.0, max_value=1.0, value=0.85, step=0.05, key="new_lo_weight")
         with col3:
-            st.text("") # Adds a single empty line
-            st.text("") # Adds another empty line
             add_lo_button = st.button("➕ Add LO")
 
         if add_lo_button and selected_lo:
