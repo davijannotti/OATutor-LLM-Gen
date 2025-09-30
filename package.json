@@ -35,7 +35,9 @@
     "use-window-focus": "^1.4.1"
   },
   "scripts": {
-    "start": "cross-env PORT=3001 react-app-rewired start",
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "node ./llm-middleware/index.js",
+    "client": "cross-env PORT=3001 react-app-rewired start",
     "prestart": "node src/tools/preprocessProblemPool.js",
     "build": "react-app-rewired build",
     "build-localhost": "cross-env PUBLIC_URL=/ react-app-rewired build",
@@ -62,6 +64,7 @@
   },
   "devDependencies": {
     "@types/react-resizable": "~1.7.4",
+    "concurrently": "^9.2.1",
     "cross-env": "^7.0.3",
     "gh-pages": "~2.2.0",
     "mathlive": "^0.98.3",

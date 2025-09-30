@@ -7,10 +7,9 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.LLM_PORT || 3001;
 
 app.post("/api/llm/feedback", async (req, res) => {
-    console.log("Request body:", req.body);
     const { question_stem, student_answer, knowledge_components } = req.body;
 
     if (!question_stem || !student_answer) {
@@ -88,7 +87,7 @@ app.post("/api/llm/feedback", async (req, res) => {
                 .json({ error: "Invalid JSON response from LLM" });
         }
 
-        // ✅ Strict schema validation
+        // Strict schema validation
         if (
             !feedback.evaluation ||
             (feedback.evaluation !== "correct" &&
