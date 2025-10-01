@@ -31,9 +31,36 @@ CONTENT_POOL = BASE_DIR / "content-pool"
 st.set_page_config(page_title="OATutor Content Creator", layout="wide")
 st.title("📘 OATutor Content Creator")
 
-tab_courses, tab_lessons, tab_problems, tab_skills = st.tabs(
-    ["📘 Courses", "📖 Lessons", "📝 Problems", "⚙️ Skills"]
+tab_skills, tab_courses, tab_lessons, tab_problems = st.tabs(
+    ["⚙️ Skills", "📘 Courses", "📖 Lessons", "📝 Problems"]
 )
+
+# ----------------- SKILLS ----------------- #
+with tab_skills:
+    st.header("⚙️ Skills Management")
+    bkt_params = load_json(BKT_PARAMS_FILE, default={})
+
+    with st.form("new_skill_form"):
+        skill_name = st.text_input("Skill ID (e.g., find_factors)")
+        prob_mastery = st.number_input("probMastery", min_value=0.0, max_value=1.0, value=0.1)
+        prob_transit = st.number_input("probTransit", min_value=0.0, max_value=1.0, value=0.1)
+        prob_slip = st.number_input("probSlip", min_value=0.0, max_value=1.0, value=0.1)
+        prob_guess = st.number_input("probGuess", min_value=0.0, max_value=1.0, value=0.1)
+
+        skill_submitted = st.form_submit_button("➕ Add Skill")
+        if skill_submitted:
+            bkt_params[skill_name] = {
+                "probMastery": prob_mastery,
+                "probTransit": prob_transit,
+                "probSlip": prob_slip,
+                "probGuess": prob_guess
+            }
+            save_json(BKT_PARAMS_FILE, bkt_params)
+            st.success(f"✅ Skill '{skill_name}' added!")
+
+    st.subheader("Existing Skills")
+    for skill, params in bkt_params.items():
+        st.write(f"- **{skill}** → {params}")
 
 # ----------------- COURSES ----------------- #
 with tab_courses:
@@ -153,7 +180,7 @@ with tab_lessons:
                     # Clear the learning objectives for the next lesson
                     st.session_state.learningObjectives = {}
 
-# ----------------- PROBLEMS (ATUALIZADO) ----------------- #
+# ----------------- PROBLEMS ----------------- #
 with tab_problems:
     st.header("📝 Problems Management")
 
@@ -335,30 +362,3 @@ with tab_problems:
                 skill_model[problem_id] = selected_skills
                 save_json(SKILL_MODEL_FILE, skill_model)
             st.success(f"✅ Problem '{problem_id}' created successfully!")
-
-# ----------------- SKILLS ----------------- #
-with tab_skills:
-    st.header("⚙️ Skills Management")
-    bkt_params = load_json(BKT_PARAMS_FILE, default={})
-
-    with st.form("new_skill_form"):
-        skill_name = st.text_input("Skill ID (e.g., find_factors)")
-        prob_mastery = st.number_input("probMastery", min_value=0.0, max_value=1.0, value=0.1)
-        prob_transit = st.number_input("probTransit", min_value=0.0, max_value=1.0, value=0.1)
-        prob_slip = st.number_input("probSlip", min_value=0.0, max_value=1.0, value=0.1)
-        prob_guess = st.number_input("probGuess", min_value=0.0, max_value=1.0, value=0.1)
-
-        skill_submitted = st.form_submit_button("➕ Add Skill")
-        if skill_submitted:
-            bkt_params[skill_name] = {
-                "probMastery": prob_mastery,
-                "probTransit": prob_transit,
-                "probSlip": prob_slip,
-                "probGuess": prob_guess
-            }
-            save_json(BKT_PARAMS_FILE, bkt_params)
-            st.success(f"✅ Skill '{skill_name}' added!")
-
-    st.subheader("Existing Skills")
-    for skill, params in bkt_params.items():
-        st.write(f"- **{skill}** → {params}")
