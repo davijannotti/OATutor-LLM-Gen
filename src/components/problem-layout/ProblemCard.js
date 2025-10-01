@@ -879,15 +879,18 @@ class ProblemCard extends React.Component {
                             </center>
                         </Grid>
                         <Grid item xs={4} sm={4} md={2}>
-                            {this.state.showAIFeedbackButton && (
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={this.handleAIFeedbackClick}
-                                >
-                                    Get AI Feedback
-                                </Button>
-                            )}
+                            <center>
+                                {this.state.showAIFeedbackButton && (
+                                    <Button
+                                        className={classes.button}
+                                        style={{ width: "80%" }}
+                                        size="small"
+                                        onClick={this.handleAIFeedbackClick}
+                                    >
+                                        Get AI Feedback
+                                    </Button>
+                                )}
+                            </center>
                         </Grid>
                         <Grid item xs={4} sm={3} md={1}>
                             <div
