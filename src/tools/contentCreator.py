@@ -28,7 +28,7 @@ BKT_PARAMS_FILE = BASE_DIR / "bkt-params" / "defaultBKTParams.json"
 CONTENT_POOL = BASE_DIR / "content-pool"
 
 # ----------------- Streamlit UI ----------------- #
-st.set_page_config(page_title="OATutor Content Creator", layout="wide")
+st.set_page_config(page_title="OATutor Content Creator", layout="centered")
 st.title("📘 OATutor Content Creator")
 
 tab_skills, tab_courses, tab_lessons, tab_problems = st.tabs(
