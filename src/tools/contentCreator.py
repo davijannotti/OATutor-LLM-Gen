@@ -249,7 +249,7 @@ with tab_problems:
 
     # --- HINTS ---
     st.subheader("Hints")
-    num_hints = st.number_input("Number of hints", min_value=0, max_value=10, value=2)
+    num_hints = st.number_input("Number of hints", min_value=1, max_value=10, value=1)
     hints = []
     hint_ids = []
 
