@@ -267,6 +267,9 @@ class ProblemCard extends React.Component {
         if (!isCorrect) {
             this.setState({ showAIFeedbackButton: true });
         }
+        else{
+            this.setState({ showAIFeedbackButton: false });
+        }
 
         this.context.firebase.log(
             parsed,
