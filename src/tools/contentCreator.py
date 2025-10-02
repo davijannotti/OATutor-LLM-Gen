@@ -234,11 +234,11 @@ with tab_problems:
         if choices:
             st.subheader("Correct Answers")
             step_answer = st.multiselect("Select correct answers", options=choices)
-            computed_answer_type = "MultipleSelect" if len(step_answer) > 1 else "string or MultipleChoice"
+            computed_answer_type = "MultipleSelect" if len(step_answer) > 1 else "string"
             st.caption(f"Suggested answerType: {computed_answer_type}")
             answer_type = st.radio(
                 "Answer Type (override)",
-                options=["string", "MultipleChoice", "MultipleSelect"],
+                options=["string", "MultipleSelect"],
                 index=0 if computed_answer_type == "string" else 1
             )
     elif problem_type == "TextBox":

@@ -244,9 +244,7 @@ function checkAnswer({
         } else if (answerType === "MultipleSelect") {
             const correctAnswers =
                 attempt.length === actual.length &&
-                attempt
-                    .sort()
-                    .every((value, index) => value === actual.sort()[index]);
+                [...attempt].sort().every((value, index) => value === [...actual].sort()[index]);
 
             if (correctAnswers) {
                 return [attempt, true, null];
