@@ -1,6 +1,7 @@
 import streamlit as st
 import json
 from pathlib import Path
+import re
 
 # ----------------- Helpers ----------------- #
 def load_json(file_path, default=None):
@@ -15,7 +16,10 @@ def save_json(file_path, data):
         json.dump(data, f, indent=4)
 
 def slugify(text):
-    return text.lower().replace(" ", "_").replace(".", "").replace(",", "")
+    text = text.lower().replace(" ", "_")
+    text = re.sub(r'[^a-z0-9_]', '', text)
+    text = re.sub(r'__+', '_', text)
+    return text
 
 def ensure_dir(path):
     Path(path).mkdir(parents=True, exist_ok=True)
@@ -216,6 +220,11 @@ with tab_problems:
     problem_title = st.text_input("Problem Title")
     problem_body = st.text_area("Problem Body (supports LaTeX with $$...$$)")
 
+    uploaded_image = st.file_uploader(
+        "Upload an image for the problem (optional)",
+        type=["png", "jpg", "jpeg", "gif"]
+    )
+
     problem_oer = st.text_input("Problem OER (URL)", value=default_oer)
     problem_license = st.text_input("Problem License", value=default_license)
 
@@ -313,6 +322,10 @@ with tab_problems:
     problem_id = slugify(problem_title) if problem_title else "<problem_id>"
     step_id = f"{problem_id}a"
 
+    problem_body = problem_body
+    if uploaded_image:
+        problem_body+= f" \\n##{uploaded_image.name}##"
+
     problem_obj = {
         "id": problem_id,
         "title": problem_title,
@@ -353,6 +366,14 @@ with tab_problems:
             step_path = steps_path / step_id
             tutoring_path = step_path / "tutoring"
             ensure_dir(tutoring_path)
+
+            if uploaded_image:
+                figures_path = problem_path / "figures"
+                ensure_dir(figures_path)
+                image_save_path = figures_path / uploaded_image.name
+                with open(image_save_path, "wb") as f:
+                    f.write(uploaded_image.getvalue())
+                st.info(f"Image '{uploaded_image.name}' saved to figures folder.")
 
             save_json(problem_path / f"{problem_id}.json", problem_obj)
             save_json(step_path / f"{step_id}.json", step_obj)
