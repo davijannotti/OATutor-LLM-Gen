@@ -38,6 +38,7 @@ import withTranslation from "../../util/withTranslation.js";
 import CryptoJS from "crypto-js";
 import Popup from "../Popup/Popup.js";
 import LLMFeedbackPane from "../LLMFeedbackPane.jsx";
+import { apiCache } from "../../util/cache.js";
 
 class ProblemCard extends React.Component {
     static contextType = ThemeContext;
@@ -663,7 +664,24 @@ class ProblemCard extends React.Component {
         } = this.step;
         const { seed, problemVars, problemID } = this.props;
 
-        this.setState({ llmFeedbackStatus: "loading" });
+        const cacheKey = `${problemID}_${inputVal}`;
+
+        if (apiCache.has(cacheKey)) {
+            const cachedData = apiCache.get(cacheKey);
+
+            this.setState({
+                isAIFeedbackPopupOpen: true,
+                llmFeedbackStatus: "success",
+                aiFeedback: cachedData,
+            });
+            return;
+        }
+
+        this.setState({
+            isAIFeedbackPopupOpen: true,
+            llmFeedbackStatus: "loading",
+            aiFeedback: null,
+        });
 
         try {
             const response = await fetch(
@@ -690,10 +708,11 @@ class ProblemCard extends React.Component {
 
             const data = await response.json();
 
+            apiCache.set(cacheKey, data);
+
             this.setState({
                 aiFeedback: data,
                 llmFeedbackStatus: "success",
-                isAIFeedbackPopupOpen: true,
             });
         } catch (error) {
             this.setState({ llmFeedbackStatus: "error" });
