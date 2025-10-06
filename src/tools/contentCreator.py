@@ -254,7 +254,7 @@ with tab_problems:
         st.subheader("TextBox Settings")
         answer_input = st.text_input("Correct Answer")
         step_answer = [answer_input] if answer_input else []
-        answer_type = st.selectbox("Answer Type", ["algebraic", "string", "numeric"])
+        answer_type = st.selectbox("Answer Type", ["arithmetic", "string"])
 
     # --- HINTS ---
     st.subheader("Hints")
@@ -281,7 +281,7 @@ with tab_problems:
             with col2:
                 answer_type_hint = st.selectbox(
                     "Type of answer",
-                    ["arithmetic", "string", "algebraic"],
+                    ["arithmetic", "string"],
                     key=f"hint_answer_type_{i}"
                 )
 
